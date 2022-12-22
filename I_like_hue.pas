@@ -20,15 +20,21 @@
   var selectedY := -1;
   var CurrentLevel := 0;
   
-procedure FillGrid;
+procedure FillGrid();
 begin
+  var c := CurrentLevel mod 3;
   for var i := 1 to w do
   begin
     for var j := 1 to h do
     begin
-      //clr := RGB(255-(i - 1)*(255 div w), (j - 1)*(255 div h), (i - 1) *(255 div w));
-      //clr := RGB((i - 1) *(255 div w), (j - 1)*(255 div h), 255-(i - 1)*(255 div w));
-      clr := RGB((i - 1) *(255 div w), 196 - (j - 1)*(196 div h), 255-(i - 1)*(255 div w));
+      case c of
+      0:
+        clr := RGB(255-(i - 1)*(255 div w), (j - 1)*(255 div h), (i - 1) *(255 div w));
+      1:
+        clr := RGB((i - 1) *(255 div w), (j - 1)*(255 div h), 255-(i - 1)*(255 div w));
+      2:
+        clr := RGB((i - 1) *(255 div w), 196 - (j - 1)*(196 div h), 255-(i - 1)*(255 div w));
+      end;
       grid[i , j] := clr;
       perfectGrid[i, j] := grid[i, j];
     end;
@@ -172,7 +178,7 @@ begin
   if(isWin = true) then
   begin
     gameState := 2;
-    sleep(2000);
+    sleep(800);
     ClearWindow();
     SetBrushColor(clWhite);
     SetFontSize(60);
@@ -200,7 +206,7 @@ procedure RandomizeGrid();
 begin
   //read(t);
   var cnt := 0;
-  var t := 4 + CurrentLevel mod 2;
+  var t := 36;
   while (cnt <= t) do
     begin
     var r1x := random(w) + 1;
@@ -230,7 +236,6 @@ end;
 procedure MouseDownVictory();
 begin
   LoadLevel(CurrentLevel);
-  sleep(30);
 end;
 
 procedure MouseDownStart();
