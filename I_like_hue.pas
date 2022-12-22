@@ -1,5 +1,7 @@
 ﻿uses GraphABC;
   const clrFileName = 'Hue_colors.csv';
+  const levelPrefix = 'Level';
+  const levelPostfix = '.txt';
   const w = 6;
   const h = 6;
   const cs = 80;
@@ -16,6 +18,7 @@
   var clickedY: integer;
   var selectedX := -1;
   var selectedY := -1;
+  var CurrentLevel := 0;
   
 procedure FillGrid;
 begin
@@ -23,7 +26,9 @@ begin
   begin
     for var j := 1 to h do
     begin
-      clr := RGB(255-(i - 1)*(255 div w), (j - 1)*(255 div h), (i - 1) *(255 div w));
+      //clr := RGB(255-(i - 1)*(255 div w), (j - 1)*(255 div h), (i - 1) *(255 div w));
+      //clr := RGB((i - 1) *(255 div w), (j - 1)*(255 div h), 255-(i - 1)*(255 div w));
+      clr := RGB((i - 1) *(255 div w), 196 - (j - 1)*(196 div h), 255-(i - 1)*(255 div w));
       grid[i , j] := clr;
       perfectGrid[i, j] := grid[i, j];
     end;
@@ -49,7 +54,7 @@ procedure DrawRect(x, y :integer; clr : Color);
 begin
    DrawRectDSize(x, y, clr, 0);
    if (blockersGrid[x, y] = true) then
-    DrawDot(x, y);
+     DrawDot(x, y);
 end;
 
 
@@ -167,37 +172,35 @@ begin
   if(isWin = true) then
   begin
     gameState := 2;
-    sleep(600);
+    sleep(2000);
     ClearWindow();
     SetBrushColor(clWhite);
     SetFontSize(60);
-    TextOut(100, 200,  'You win!')
+    TextOut(100, 200,  'You win!');
+    CurrentLevel += 1;
   end
 end;
   
-procedure AddBlockers();
+procedure AddBlockersFromFile(filename: string);
 begin
-  for var i := 1 to w do
+  var blockersArray := ReadAllLines(filename);
+  println(blockersArray[0][1]);
+  println(blockersArray[1][2]);
+  for var i := 0 to w - 1 do
   begin
-    for var j := 1 to h do
+    for var j := 0 to h - 1 do
     begin
-      if  ((j = h - (h - 1)) or (j = h)) then
-      begin
-        blockersGrid[i, j] := true;
-      end
-      else
-      begin
-        blockersGrid[i, j] := false;
-      end;
-    end;
-  end;
+      blockersGrid[i + 1, j + 1] := blockersArray[j][i + 1] <> '0';
+      //blockersGrid[i + 1, j + 1] := false;
+    end
+  end 
 end;
 
 procedure RandomizeGrid();
 begin
   //read(t);
   var cnt := 0;
-  var t := 36;
+  var t := 4 + CurrentLevel mod 2;
   while (cnt <= t) do
     begin
     var r1x := random(w) + 1;
@@ -215,30 +218,18 @@ end;
 procedure LoadLevel(l: integer);
 begin
   gamestate := 1;
-  //if(l = 0) then
-  //begin
-    //FillGrid();
-  //end;
-  //if(l = 1) then
-  //begin 
-    //FillGrid;
-    //AddBlockers();
-  //end;
-  case l of
-    0:
-      FillGrid;
-    1:
-    begin
-      FillGrid;
-      AddBlockers();
-    end
-  end;
+  var filename := levelPrefix;
+  filename += l.ToString;
+  filename += levelPostfix;
+  //print(filename);
+  FillGrid();
+  AddBlockersFromFile(filename);
   RandomizeGrid();
 end;
  
 procedure MouseDownVictory();
 begin
-  LoadLevel(1);
+  LoadLevel(CurrentLevel);
   sleep(30);
 end;
 
@@ -358,9 +349,11 @@ end;
 
 begin
   SetWindowSize(cs * w, cs * h);
+  SetConsoleIO;
+  //print('hello world');
   FillColorArrays;
     
-  LoadLevel(1);
+  LoadLevel(CurrentLevel);
   DrawGrid();
   
   OnMouseDown := MouseDown;
