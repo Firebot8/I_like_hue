@@ -197,12 +197,12 @@ procedure RandomizeGrid();
 begin
   //read(t);
   var cnt := 0;
-  var t := 1;
+  var t := 36;
   while (cnt <= t) do
     begin
-    var r1x := random(w - 1) + 1;
-    var r1y := random(h -1) + 1;
-    var r2x := random(w - 1) + 1;
+    var r1x := random(w) + 1;
+    var r1y := random(h) + 1;
+    var r2x := random(w) + 1;
     var r2y := random(h) + 1;
   if(blockersGrid[r1x, r1y] <> true) and (blockersGrid[r2x, r2y] <> true) then
     begin
