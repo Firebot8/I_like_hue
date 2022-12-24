@@ -19,7 +19,11 @@
   var selectedX := -1;
   var selectedY := -1;
   var CurrentLevel := 0;
-  
+  var pic: Picture;
+  var heart: Picture;
+  {var sol0: Picture;  
+  var sol1: Picture;
+  var sol2: Picture;}
 procedure FillGrid();
 begin
   var c := CurrentLevel mod 3;
@@ -46,7 +50,7 @@ begin
    SetPenColor(grid[x, y]);
    SetBrushColor(grid[x, y]);
    Rectangle((x - 1) * cs - d, (y - 1) * cs - d, x * cs + d, y * cs + d);
-   SetPenColor(Color.Black);
+   //SetPenColor(Color.Black);
    //TextOut((x - 1) * cs + cs div 2, (y - 1) * cs + cs div 2, grid[x, y].G.ToString);
 end;
 
@@ -74,7 +78,18 @@ begin
     end;
   end;
 end;
-  
+
+procedure DrawPerfectGrid();
+begin
+    for var i := 1 to w do
+  begin
+    for var j := 1 to h do
+    begin
+      DrawRectDSize(i, j, perfectGrid[i, j], 0);
+    end;
+  end;
+end;
+
 procedure Swap(x1, y1, x2, y2: integer);
   begin
     clr := grid[x1, y1];
@@ -155,9 +170,14 @@ begin
   end
 end;
 
-procedure DetermineWinCondition;
+procedure DetermineWinCondition();
 begin
+  heart := Picture.Create('Heart.png');
+  //sol0 := Picture.Create('Solved1.png');
+  //sol1 := Picture.Create('Solved2.png');
+  //sol2 := Picture.Create('Solved3.png');
   var isWin := true;
+  //var c := CurrentLevel mod 3;
   //for i, j from 1 to w - 1, h  1
   for var i:= 1 to w do
   begin
@@ -178,11 +198,21 @@ begin
   if(isWin = true) then
   begin
     gameState := 2;
-    sleep(800);
-    ClearWindow();
+    sleep(200);
+    DrawPerfectGrid();
+    heart.Draw(cs, cs, cs*(w-2), cs*(h-2));
+    {case c of
+      0:
+        sol0.Draw(0, 0, cs*w, cs*h);
+      1:
+        sol1.Draw(0, 0, cs*w, cs*h);
+      2:
+        sol2.Draw(0, 0, cs*w, cs*h);
+    end;}
+    {ClearWindow();
     SetBrushColor(clWhite);
     SetFontSize(60);
-    TextOut(100, 200,  'You win!');
+    TextOut(100, 200,  'You win!');}
     CurrentLevel += 1;
   end
 end;
@@ -190,8 +220,8 @@ end;
 procedure AddBlockersFromFile(filename: string);
 begin
   var blockersArray := ReadAllLines(filename);
-  println(blockersArray[0][1]);
-  println(blockersArray[1][2]);
+  {println(blockersArray[0][1]);
+  println(blockersArray[1][2]);}
   for var i := 0 to w - 1 do
   begin
     for var j := 0 to h - 1 do
@@ -232,6 +262,21 @@ begin
   AddBlockersFromFile(filename);
   RandomizeGrid();
 end;
+
+procedure FillColorArrays();
+begin
+  var clrArray := ReadAllLines(clrFileName);
+  clrNames := new string[clrArray.Length -1];
+  clrRGBvalues := new integer[clrArray.Length - 1, 3];
+  for var i := 1 to clrArray.Length - 1 do
+  begin
+    var s := clrArray[i].Split(',');
+    clrNames[i - 1] := s[3]; //name
+    clrRGBvalues[i - 1, 0] := s[0].ToInteger;
+    clrRGBvalues[i - 1, 1] := s[1].ToInteger;
+    clrRGBvalues[i - 1, 2] := s[2].ToInteger;//rgb values
+  end;
+end;
  
 procedure MouseDownVictory();
 begin
@@ -240,7 +285,9 @@ end;
 
 procedure MouseDownStart();
 begin
-  
+  FillColorArrays;
+  LoadLevel(CurrentLevel);
+  DrawGrid();
 end;
 
 procedure MouseDowncColorTip();
@@ -337,29 +384,18 @@ begin
     end
 end;
 
-procedure FillColorArrays();
+
+
+procedure DrawMenu;
 begin
-  var clrArray := ReadAllLines(clrFileName);
-  clrNames := new string[clrArray.Length -1];
-  clrRGBvalues := new integer[clrArray.Length - 1, 3];
-  for var i := 1 to clrArray.Length - 1 do
-  begin
-    var s := clrArray[i].Split(',');
-    clrNames[i - 1] := s[3]; //name
-    clrRGBvalues[i - 1, 0] := s[0].ToInteger;
-    clrRGBvalues[i - 1, 1] := s[1].ToInteger;
-    clrRGBvalues[i - 1, 2] := s[2].ToInteger;//rgb values
-  end;
+  gamestate := 0;
+  pic := Picture.Create('Gradient.jpg');
+  pic.Draw(0, 0, cs*w, cs*h);
 end;
 
 begin
   SetWindowSize(cs * w, cs * h);
-  SetConsoleIO;
-  //print('hello world');
-  FillColorArrays;
-    
-  LoadLevel(CurrentLevel);
-  DrawGrid();
-  
+  //SetConsoleIO;
+  DrawMenu();
   OnMouseDown := MouseDown;
 end.
