@@ -1,4 +1,5 @@
 ﻿uses GraphABC;
+Uses System.IO;
   const clrFileName = 'Hue_colors.csv';
   const levelPrefix = 'Level';
   const levelPostfix = '.txt';
@@ -6,7 +7,7 @@
   const h = 6;
   const cs = 80;
   
-  var gameState: integer; //0 - weelcome, 1 - in game, 2 - victory, 3 - colorZoom
+  var gameState: integer; //0 - welcome, 1 - in game, 2 - victory, 3 - colorZoom
   
   var clrNames: array of string;
   var clrRGBvalues: array[,] of integer;
@@ -19,11 +20,10 @@
   var selectedX := -1;
   var selectedY := -1;
   var CurrentLevel := 0;
+  var nLevels: integer;
   var pic: Picture;
   var heart: Picture;
-  {var sol0: Picture;  
-  var sol1: Picture;
-  var sol2: Picture;}
+
 procedure FillGrid();
 begin
   var c := CurrentLevel mod 3;
@@ -236,7 +236,7 @@ procedure RandomizeGrid();
 begin
   //read(t);
   var cnt := 0;
-  var t := 36;
+  var t := (CurrentLevel + 1) * 2 + 1;
   while (cnt <= t) do
     begin
     var r1x := random(w) + 1;
@@ -280,13 +280,13 @@ end;
  
 procedure MouseDownVictory();
 begin
-  LoadLevel(CurrentLevel);
+  LoadLevel(CurrentLevel mod (nLevels + 1));
 end;
 
 procedure MouseDownStart();
 begin
   FillColorArrays;
-  LoadLevel(CurrentLevel);
+  LoadLevel(CurrentLevel mod (nLevels + 1));
   DrawGrid();
 end;
 
@@ -395,7 +395,9 @@ end;
 
 begin
   SetWindowSize(cs * w, cs * h);
-  //SetConsoleIO;
+  SetConsoleIO;
+  nLevels := Directory.GetFiles(GetDir).Length - 5;
+  //print(nLevels);
   DrawMenu();
   OnMouseDown := MouseDown;
 end.
